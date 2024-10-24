@@ -5,12 +5,14 @@ import bittensor as bt  # type: ignore
 import structlog
 from celery import shared_task  # type: ignore
 from celery.utils.log import get_task_logger  # type: ignore
+from constance import config
 from django.conf import settings
 from git import GitCommandError, Repo
 
 from auto_validator.celery import app
+from auto_validator.utils.sync_utils import sync_validators
 
-from .models import SubnetSlot, ValidatorInstance
+from .models import ExternalHotkey, Subnet, SubnetSlot, Validator, ValidatorHotkey, ValidatorInstance
 
 GITHUB_SUBNETS_SCRIPTS_PATH = settings.GITHUB_SUBNETS_SCRIPTS_PATH
 LOCAL_SUBNETS_SCRIPTS_PATH = settings.LOCAL_SUBNETS_SCRIPTS_PATH
@@ -83,3 +85,17 @@ def fetch_subnet_scripts():
 
     logger.info("Successfully fetched subnet scripts")
     return
+
+
+@shared_task
+def sync_validators_task_core():
+    if not config.ENABLE_VALIDATOR_AUTO_SYNC:
+        logger.info("[Core] Auto-sync is disabled. Exiting task.")
+        return
+    logger.info("[Core] Auto-sync is enabled. Running sync_validators().")
+    sync_validators(
+        validator_model=Validator,
+        subnet_model=Subnet,
+        external_hotkey_model=ExternalHotkey,
+        validator_hotkey_model=ValidatorHotkey,
+    )

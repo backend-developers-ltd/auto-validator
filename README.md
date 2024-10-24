@@ -29,11 +29,14 @@ pdm run manage.py runserver
 pdm run manage.py run_bot
 ```
 
-# Setup validator manager auto-sync
+# Setup validator manager auto-sync (dev env only)
+
+To enable validator auto-sync either in core admin panel or in validator-manager admin panel run the following:
 
 ```sh
 pdm run celery -A auto_validator worker -l info
-pdm run celery -A auto_validator beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+pdm run celery -A auto_validator beat -l info
+
 ```
 
 # Setup production environment (git deployment)

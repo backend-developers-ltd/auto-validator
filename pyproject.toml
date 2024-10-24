@@ -4,7 +4,7 @@ requires-python = "==3.11.*"
 version = "0"
 dependencies = [
     "Django~=4.2.4",
-    "django-constance[database]==3.1.0",
+    "django-constance>=4.1.2",
     "django-cors-headers~=4.2.0",
     "django-environ~=0.11.2",
     "django-extensions==3.2.3",
@@ -31,7 +31,6 @@ dependencies = [
     "bittensor-wallet>=2.0.1",
     "bittensor>=8.1.1",
     "gitpython>=3.1.43",
-    "django-celery-beat>=2.7.0",
 ]
 
 [build-system]

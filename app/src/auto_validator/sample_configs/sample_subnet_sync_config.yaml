@@ -1,0 +1,42 @@
+macrocosm-os:
+  codename: macrocosm-os
+  mainnet_netuid: 1
+  testnet_netuid: 102
+  name: Text Prompting
+  owner_nick: "@qriosity3000"
+  owner_discord_id: "335534249843145729"
+  maintainer_discord_ids:
+    - "208980979426131968"
+    - "234852730303283201"
+    - "386757032083980288"
+  github_repo: "https://github.com/macrocosm-os/prompting"
+  hardware_description: "https://github.com/macrocosm-os/prompting/blob/main/min_compute.yml"
+  description: "This Subnet defines an incentive mechanism to create a distributed conversational AI."
+
+omron:
+  codename: omron
+  mainnet_netuid: 2
+  testnet_netuid: 118
+  owner_nick: "@wencoffee"
+  owner_discord_id: "956623328553099264"
+  maintainer_discord_ids:
+    - "1214635532856987728"
+    - "956623328553000264"
+    - "1214617889559023746"
+  name: Omron
+  github_repo: "https://github.com/inference-labs-inc/omron-subnet"
+  hardware_description: "https://github.com/inference-labs-inc/omron-subnet?tab=readme-ov-file#run-the-miner"
+  description: "Omron subnet, building cryptographically verified efficient and intelligent capital networks."
+
+ComputeHorde:
+  codename: ComputeHorde
+  mainnet_netuid: 12
+  testnet_netuid: 174
+  owner_nick: "@rhef"
+  owner_discord_id: "201741436117450752"
+  maintainer_discord_ids: []
+  name: Compute Horde
+  github_repo: "https://github.com/backend-developers-ltd/ComputeHorde"
+  hardware_description: ""
+  description: ""
+

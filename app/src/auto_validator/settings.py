@@ -4,6 +4,7 @@ Django settings for auto_validator project.
 
 import inspect
 import logging
+import os
 import pathlib
 from datetime import timedelta
 from functools import wraps
@@ -80,7 +81,6 @@ INSTALLED_APPS = [
     "auto_validator.core",
     "bootstrap5",
     "auto_validator.discord_bot",
-    "django_celery_beat",
     "auto_validator.validator_manager",
 ]
 
@@ -211,6 +211,7 @@ else:
 CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
 CONSTANCE_CONFIG = {
     "API_UPLOAD_MAX_SIZE": (100 * 1024 * 1024, "API upload max size in bytes", int),
+    "ENABLE_VALIDATOR_AUTO_SYNC": (False, "Enable or disable validator auto sync", bool),
 }
 
 
@@ -232,8 +233,12 @@ CELERY_BEAT_SCHEDULE = {  # type: ignore
         "task": "auto_validator.core.tasks.schedule_update_validator_status",
         "schedule": timedelta(seconds=60),
     },
+    "sync_validators_task_core": {
+        "task": "auto_validator.core.tasks.sync_validators_task_core",
+        "schedule": timedelta(seconds=60),
+    },
     "sync_validators_task_validator_manager": {
-        "task": "auto_validator.validator_manager.tasks.sync_validators_task",
+        "task": "auto_validator.validator_manager.tasks.sync_validators_task_validator_manager",
         "schedule": timedelta(seconds=60),
     },
 }
@@ -446,15 +451,15 @@ BITTENSOR_WALLET_NAME = env("BITTENSOR_WALLET_NAME", default="validator")
 BITTENSOR_HOTKEY_NAME = env("BITTENSOR_HOTKEY_NAME", default="validator-hotkey")
 
 LOCAL_SUBNETS_CONFIG_PATH = pathlib.Path(
-    env("LOCAL_SUBNETS_CONFIG_PATH", default="~/.config/auto-validator/subnets.yaml")
+    os.path.expanduser(env("LOCAL_SUBNETS_CONFIG_PATH", default="~/.config/auto-validator/subnets.yaml"))
 )
 
 LOCAL_SUBNETS_SCRIPTS_PATH = pathlib.Path(
-    env("LOCAL_SUBNETS_SCRIPTS_PATH", default="~/.config/auto-validator/subnet-scripts")
+    os.path.expanduser(env("LOCAL_SUBNETS_SCRIPTS_PATH", default="~/.config/auto-validator/subnet-scripts"))
 )
 
 LOCAL_VALIDATORS_CONFIG_PATH = pathlib.Path(
-    env("LOCAL_VALIDATORS_CONFIG_PATH", default="~/.config/auto-validator/validators.yaml")
+    os.path.expanduser(env("LOCAL_VALIDATORS_CONFIG_PATH", default="~/.config/auto-validator/validators.yaml"))
 )
 
 GITHUB_SUBNETS_SCRIPTS_PATH = env(
