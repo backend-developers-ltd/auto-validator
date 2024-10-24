@@ -1,0 +1,22 @@
+OTF:
+  long_name: "Opentensor Foundation"
+  default_hotkey: "5F4tQyWrhfGVcNhoqeiNsR6KjD4wMZ2kfhLj4oHYuyHbZAy1"
+  last_stake: 1064117
+  subnet_hotkeys:
+    macrocosm-os:
+      - "5F4tQyWrhfGVcNhoqeiNsR6KjD4wMZ2kfhLj4oHYuyHbzazz"
+      - "5F4tQyWrhfGVcNhoqeiNsR6KjD4wMZ2kfhLj4oHYuyHbZA33"
+    omron:
+      - "5F4tQyWrhfGVcNhoqeiNsR6KjD4wMZ2kfhLj4oHYuyHbZAc7"
+      - "5F4tQyWrhfGVcNhoqeiNsR6KjD4wMZ2kfhLj4oHYuyHbbbaa"
+
+Foundry:
+  long_name: "Foundry"
+  default_hotkey: "5F4tQyWrhfGVcNhoqeiNsR6KjD4wMZ2kfhLj4oHYuyHbZAd3"
+  last_stake: 123456
+  subnet_hotkeys:
+    ComputeHorde:
+      - "5F4tQyWrhfGVcNhoqeiNsR6KjD4wMZ2kfhLj4oHYuyHbZAb1"
+      - "5F4tQyWrhfGVcNhoqeiNsR6KjD4wMZ2kfhLj4oHYuyHbZAb2"
+    omron:
+      - "5F4tQyWrhfGVcNhoqeiNsR6KjD4wMZ2kfhLj4oHYuyHbZAd4"

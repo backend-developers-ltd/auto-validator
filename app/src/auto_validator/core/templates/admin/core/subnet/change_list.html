@@ -4,6 +4,12 @@
     <li>
         <a href="{{ sync_subnets_url }}" class="btn btn-primary">Sync Subnets</a>
     </li>
+    <li>
+        <a href="{{ sync_validators_url }}" class="btn btn-primary">Sync Validators</a>
+    </li>
+    <li>
+        <a href="{{ automate_validators_sync_url }}" class="btn btn-primary">{{ toggle_validator_auto_sync }}</a>
+    </li>
     {{ block.super }}
     
 {% endblock %}

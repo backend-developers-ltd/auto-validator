@@ -1,6 +1,6 @@
 import csv
-import difflib
 import json
+import logging
 import os
 import pathlib
 
@@ -11,8 +11,19 @@ from django.conf import settings  # type: ignore
 from django.http.response import HttpResponse, HttpResponseRedirect  # type: ignore
 from django.shortcuts import redirect, render  # type: ignore
 
-from ..models import Subnet
+from auto_validator.utils.sync_utils import (
+    generate_diff,
+    load_validators_from_yaml,
+    load_yaml_data,
+    prepare_subnet_data_for_comparison,
+    prepare_validator_data_for_comparison,
+    sync_validators,
+)
+
+from ..models import ExternalHotkey, Subnet, Validator, ValidatorHotkey
 from .ssh import SSH_Manager
+
+logger = logging.getLogger("django")
 
 GITHUB_SUBNETS_CONFIG_PATH = settings.GITHUB_SUBNETS_CONFIG_PATH
 LOCAL_SUBNETS_CONFIG_PATH = settings.LOCAL_SUBNETS_CONFIG_PATH
@@ -32,34 +43,17 @@ TESTNET_CHAIN_ENDPOINT = settings.TESTNET_CHAIN_ENDPOINT
 
 
 def fetch_and_compare_subnets(request: requests.Request) -> requests.Response | HttpResponse | HttpResponseRedirect:
-    response = requests.get(GITHUB_SUBNETS_CONFIG_PATH, timeout=30)
-    if response.status_code != 200:
-        return render(request, "admin/sync_error.html", {"error": "Failed to fetch data from GitHub."})
+    github_data = load_local_subnets_config()
+    github_data_list = prepare_subnet_data_for_comparison(github_data)
 
-    github_data = yaml.safe_load(response.text)
     db_data = list(Subnet.objects.values())
-    github_data_list = []
-    for codename, subnet in github_data.items():
-        subnet["codename"] = codename
-        subnet.pop("bittensor_id", None)
-        subnet.pop("twitter", None)
-        github_data_list.append(subnet)
-    # github_data = [for codename, subnet in github_data.items()]
     db_data = [{k: v for k, v in subnet.items() if k != "id"} for subnet in db_data]
-    github_data_str = json.dumps(github_data_list, indent=2, sort_keys=True)
-    db_data_str = json.dumps(db_data, indent=2, sort_keys=True)
 
-    diff = difflib.unified_diff(
-        db_data_str.splitlines(), github_data_str.splitlines(), fromfile="db_data", tofile="github_data", lineterm=""
-    )
-    diff_str = "\n".join(diff)
+    diff_str = generate_diff(db_data, github_data_list, "db_data", "github_data")
 
     if request.method == "POST":
-        new_data = github_data_list
-        for subnet_data in new_data:
-            subnet, created = Subnet.objects.update_or_create(
-                codename=subnet_data.get("codename"), defaults=subnet_data
-            )
+        for subnet_data in github_data_list:
+            Subnet.objects.update_or_create(codename=subnet_data.get("codename"), defaults=subnet_data)
         return redirect("admin:core_subnet_changelist")
 
     return render(
@@ -67,9 +61,92 @@ def fetch_and_compare_subnets(request: requests.Request) -> requests.Response | 
         "admin/sync_subnets.html",
         {
             "diff_str": diff_str,
-            "github_data": json.dumps(github_data),
+            "github_data": json.dumps(github_data, indent=2),
         },
     )
+
+
+def fetch_and_compare_validators(request: requests.Request) -> requests.Response | HttpResponse | HttpResponseRedirect:
+    github_validators = load_validators_from_yaml(LOCAL_VALIDATORS_CONFIG_PATH)
+    github_sorted = prepare_validator_data_for_comparison(github_validators)
+
+    db_validators = fetch_db_validators()
+    db_sorted = prepare_validator_data_for_comparison(db_validators)
+
+    diff_str = generate_diff(db_sorted, github_sorted, "db_data", "github_data")
+
+    if request.method == "POST":
+        try:
+            sync_validators(
+                validator_model=Validator,
+                subnet_model=Subnet,
+                external_hotkey_model=ExternalHotkey,
+                validator_hotkey_model=ValidatorHotkey,
+            )
+            return redirect("admin:core_validator_changelist")
+        except Exception as e:
+            return render(
+                request,
+                "admin/sync_validators_error.html",
+                {"error": f"An error occurred during synchronization: {str(e)}"},
+            )
+
+    return render(
+        request,
+        "admin/sync_validators.html",
+        {
+            "diff_str": diff_str,
+            "github_data": json.dumps(github_sorted, indent=2),
+        },
+    )
+
+
+def fetch_db_validators() -> list[dict]:
+    db_validators = []
+    validators = Validator.objects.all().prefetch_related("validatorhotkey_set__external_hotkey")
+    for validator in validators:
+        db_validator = {
+            "short_name": validator.short_name,
+            "long_name": validator.long_name,
+            "last_stake": validator.last_stake,
+            "default_hotkey": validator.default_hotkey.hotkey if validator.default_hotkey else None,
+            "subnet_hotkeys": {},
+        }
+        for vh in validator.validatorhotkey_set.filter(is_default=False):
+            subnet_codename = vh.external_hotkey.subnet.codename if vh.external_hotkey.subnet else None
+            if subnet_codename not in db_validator["subnet_hotkeys"]:
+                db_validator["subnet_hotkeys"][subnet_codename] = []
+            db_validator["subnet_hotkeys"][subnet_codename].append(vh.external_hotkey.hotkey)
+        db_validators.append(db_validator)
+    return db_validators
+
+
+def render_delegate_stake_form(request, form, subnets, csv_ids) -> HttpResponse:
+    context = {
+        "form": form,
+        "subnets": subnets,
+        "csv_ids": csv_ids,
+        "title": "Delegate Stake",
+    }
+    return render(
+        request,
+        "admin/delegate_stake.html",
+        context,
+    )
+
+
+def process_delegate_stake_form(request, form) -> None:
+    cleaned_data = form.clean()
+    for field_name, value in cleaned_data.items():
+        if value is not None and value != "":
+            parts = field_name.split("_")
+            if len(parts) == 2 and parts[0] == "stake":
+                external_hotkey_id = int(parts[1])
+                percentage = float(value)
+
+                external_hotkey = ExternalHotkey.objects.get(id=external_hotkey_id)
+                external_hotkey.delegate_stake_percentage = percentage
+                external_hotkey.save()
 
 
 def get_user_ip(request: requests.Request) -> str:
@@ -199,3 +276,10 @@ def get_dumper_commands(subnet_identifier: str, config_path: str) -> list:
             if codename_lower in map(str.lower, possible_codenames):
                 return sn_config.get("dumper_commands", [])
         return None
+
+
+def load_local_subnets_config() -> list[dict]:
+    try:
+        return load_yaml_data(LOCAL_SUBNETS_CONFIG_PATH)
+    except Exception as e:
+        raise Exception(f"An error occurred while loading the local file: {str(e)}")

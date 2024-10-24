@@ -4,8 +4,11 @@ from django.contrib.admin.sites import site
 from django.urls import include, path
 from fingerprint.views import FingerprintView
 
+from .validator_manager.admin import admin_site
+
 urlpatterns = [
     path("admin/", site.urls),
+    path("validator_admin/", admin_site.urls),
     path("redirect/", FingerprintView.as_view(), name="fingerprint"),
     path("", include("django.contrib.auth.urls")),
     path("", include("auto_validator.core.urls")),

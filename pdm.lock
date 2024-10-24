@@ -5,7 +5,7 @@
 groups = ["default", "lint", "test", "type_check"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:ab9eab3a1f2867f58406eae8472cac34a0d5e517040473d079ca275ecc8ad95c"
+content_hash = "sha256:e15bf19a4bd5b3d06200cb54ca307ec2f17a1e9be99bf44e43bca64addd5b2ac"
 
 [[metadata.targets]]
 requires_python = "==3.11.*"
@@ -820,31 +820,13 @@ files = [
 
 [[package]]
 name = "django-constance"
-version = "3.1.0"
-requires_python = ">=3.7"
+version = "4.1.2"
+requires_python = ">=3.8"
 summary = "Django live settings with pluggable backends, including Redis."
 groups = ["default"]
-dependencies = [
-    "django-picklefield",
-]
 files = [
-    {file = "django-constance-3.1.0.tar.gz", hash = "sha256:2b96e51de63751ef63f8f92f74e0f6aea30fb6453f3a736c21e1f8b3f6cf0b4f"},
-    {file = "django_constance-3.1.0-py3-none-any.whl", hash = "sha256:6242486a346e396d765a9333d17f3101c8613cabc92e0b98dcb70c2a391bc53b"},
-]
-
-[[package]]
-name = "django-constance"
-version = "3.1.0"
-extras = ["database"]
-requires_python = ">=3.7"
-summary = "Django live settings with pluggable backends, including Redis."
-groups = ["default"]
-dependencies = [
-    "django-constance==3.1.0",
-]
-files = [
-    {file = "django-constance-3.1.0.tar.gz", hash = "sha256:2b96e51de63751ef63f8f92f74e0f6aea30fb6453f3a736c21e1f8b3f6cf0b4f"},
-    {file = "django_constance-3.1.0-py3-none-any.whl", hash = "sha256:6242486a346e396d765a9333d17f3101c8613cabc92e0b98dcb70c2a391bc53b"},
+    {file = "django_constance-4.1.2-py3-none-any.whl", hash = "sha256:bd8e847a5a6225cfc69da9d87de909dbb765e4150507eb3f555327ba32ac6fd6"},
+    {file = "django_constance-4.1.2.tar.gz", hash = "sha256:52163529d4b1be4404d4f8568c6742f76f4d4fc90dc31355849ea2c1e0c525d7"},
 ]
 
 [[package]]
@@ -928,20 +910,6 @@ dependencies = [
 files = [
     {file = "django-ipware-6.0.5.tar.gz", hash = "sha256:b39e27403287d6beb0513e694024017dba58d129fd410a1014ac8a1584e73fce"},
     {file = "django_ipware-6.0.5-py2.py3-none-any.whl", hash = "sha256:a4b73de9a58af9aaa08710da689fb87e39ec470f8df6dc7ee9f8e2d3e0cdef6a"},
-]
-
-[[package]]
-name = "django-picklefield"
-version = "3.2"
-requires_python = ">=3"
-summary = "Pickled object field for Django"
-groups = ["default"]
-dependencies = [
-    "Django>=3.2",
-]
-files = [
-    {file = "django-picklefield-3.2.tar.gz", hash = "sha256:aa463f5d79d497dbe789f14b45180f00a51d0d670067d0729f352a3941cdfa4d"},
-    {file = "django_picklefield-3.2-py3-none-any.whl", hash = "sha256:e9a73539d110f69825d9320db18bcb82e5189ff48dbed41821c026a20497764c"},
 ]
 
 [[package]]

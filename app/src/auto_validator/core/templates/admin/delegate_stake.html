@@ -1,0 +1,80 @@
+{# templates/admin/delegate_stake.html #}
+
+{% extends "admin/base_site.html" %}
+{% block content %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load static %}
+<div class="container mt-4">
+    <form action="{% url 'admin:delegate_stake_confirm' %}" method="post">
+        {% csrf_token %}
+        
+        {# Display Django messages (success, error, etc.) #}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        
+        <!-- Hidden field to pass the selected subnet IDs -->
+        <input type="hidden" name="ids" value="{{ csv_ids }}">
+
+        {# Accordion for Subnets #}
+        <div class="accordion" id="subnetAccordion">
+            {% for subnet, validators in form.grouped_fields.items %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingSubnet{{ forloop.counter }}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSubnet{{ forloop.counter }}" aria-expanded="false" aria-controls="collapseSubnet{{ forloop.counter }}">
+                            {{ subnet }}
+                        </button>
+                    </h2>
+                    <div id="collapseSubnet{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="headingSubnet{{ forloop.counter }}" data-bs-parent="#subnetAccordion">
+                        <div class="accordion-body">
+                            {# Accordion for Validators within Subnet #}
+                            <div class="accordion" id="validatorAccordion{{ forloop.counter }}">
+                                {% for validator, hotkeys in validators.items %}
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="headingValidator{{ forloop.parentloop.counter }}{{ forloop.counter }}">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseValidator{{ forloop.parentloop.counter }}{{ forloop.counter }}" aria-expanded="false" aria-controls="collapseValidator{{ forloop.parentloop.counter }}{{ forloop.counter }}">
+                                                {{ validator }}
+                                            </button>
+                                        </h2>
+                                        <div id="collapseValidator{{ forloop.parentloop.counter }}{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="headingValidator{{ forloop.parentloop.counter }}{{ forloop.counter }}" data-bs-parent="#validatorAccordion{{ forloop.counter }}">
+                                            <div class="accordion-body">
+                                                <div class="row g-3">
+                                                    {% for hotkey in hotkeys %}
+                                                        <div class="card mb-2">
+                                                            <div class="card-header">
+                                                                <h5>{{ hotkey.field.label_tag }}</h5>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <ul>
+                                                                    <li>Stake: 10000</li> <!-- Example hotkey parameter -->
+                                                                    <li>kth: value</li> <!-- Example hotkey parameter -->
+                                                                </ul>
+                                                                <div class="form-group">
+                                                                    {% bootstrap_field hotkey.field show_label=False %}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <br>
+        <button type="submit" name="apply" value="apply" class="btn btn-primary">Apply</button>
+    </form>
+</div>
+<script src="{% static 'dist/bundle.js' %}"></script>
+{% endblock %}
