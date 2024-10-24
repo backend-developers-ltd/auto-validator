@@ -60,7 +60,7 @@ class ValidatorAdmin(admin.ModelAdmin):
     search_fields = (
         "long_name",
         "short_name",
-    )  # Added 'short_name' here to cover both fields in autocomplete
+    )
     inlines = [ValidatorHotkeyInline]
 
     def default_hotkey_display(self, obj):
@@ -80,7 +80,7 @@ class ExternalHotkeyAdmin(admin.ModelAdmin):
         "subnet",
         "validator_display",
     )
-    search_fields = ("name", "hotkey", "subnet__name")  # Added 'subnet__name' to support the ForeignKey in autocomplete
+    search_fields = ("name", "hotkey", "subnet__name")
     list_filter = ("subnet",)
     autocomplete_fields = ("subnet",)
     inlines = [ValidatorHotkeyInlineForExternalHotkey]
